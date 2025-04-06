@@ -10,50 +10,62 @@ int countPairs1(int *arr, int len, int value) {
   }
   return count;
 }
+
 int countPairs2(int *arr, int len, int value) {
-  int left = 0;
-  int right = len - 1;
   int count = 0;
+  int left = 0, right = len - 1;
   while (left < right) {
     int sum = arr[left] + arr[right];
     if (sum == value) {
-      count++;
+      int l = 1, r = 1;
+      while (left + l < right && arr[left + l] == arr[left]) l++;
+      while (right - r > left && arr[right - r] == arr[right]) r++;
+      if (arr[left] != arr[right]) {
+        count += l * r;
+        left += l;
+        right -= r;
+      } else {
+        int n = right - left + 1;
+        count += (n * (n - 1)) / 2;
+        break;
+      }
+    } else if (sum < value) {
       left++;
-      right--;
-    }
-    else if (sum < value) {
-      left++;
-    }
-    else {
+    } else {
       right--;
     }
   }
   return count;
 }
 
-int binarySearch(int* arr, int left, int right, int target) {
-  while (left <= right) {
-    int mid = left + (right - left) / 2;
-    if (arr[mid] == target) {
-      return 1;
-    }
-    else if (arr[mid] < target) {
-      left = mid + 1;
-    }
-    else {
-      right = mid - 1;
-    }
-  }
-  return 0;
-}
-
 int countPairs3(int *arr, int len, int value) {
   int count = 0;
   for (int i = 0; i < len; ++i) {
-    int complement = value - arr[i];
-    if (binarySearch(arr, i + 1, len - 1, complement)) {
-      count++;
-    }
+      int target = value - arr[i];
+      int left = i + 1, right = len - 1;
+      int first = -1, last = -1;
+      while (left <= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] < target) {
+          left = mid + 1;
+        } else {
+          if (arr[mid] == target) first = mid;
+          right = mid - 1;
+        }
+      }
+      left = i + 1, right = len - 1;
+      while (left <= right) {
+        int mid = (left + right) / 2;
+        if (arr[mid] > target) {
+          right = mid - 1;
+        } else {
+          if (arr[mid] == target) last = mid;
+          left = mid + 1;
+        }
+      }
+      if (first != -1 && last != -1) {
+        count += last - first + 1;
+      }
   }
   return count;
 }
