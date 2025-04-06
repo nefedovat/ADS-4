@@ -12,13 +12,29 @@ int countPairs1(int* arr, int len, int value) {
 }
 
 int countPairs2(int* arr, int len, int value) {
-  int left = 0, right = len - 1;
+  std::sort(arr, arr + len);  // Сортировка для работы метода
   int count = 0;
+  int left = 0, right = len - 1;
   while (left < right) {
     int sum = arr[left] + arr[right];
     if (sum == value) {
-      count++;
-      left++;
+      // Обработка дубликатов
+      if (arr[left] == arr[right]) {
+        int n = right - left + 1;
+        count += n * (n - 1) / 2;
+        break;
+      }
+      int left_val = arr[left], right_val = arr[right];
+      int left_count = 0, right_count = 0;
+      while (arr[left] == left_val) {
+        left_count++;
+        left++;
+      }
+      while (arr[right] == right_val) {
+        right_count++;
+        right--;
+      }
+      count += left_count * right_count;
     } else if (sum < value) {
       left++;
     } else {
@@ -40,13 +56,39 @@ int binarySearch(int* arr, int left, int right, int target) {
   return 0;
 }
 
+int binarySearchCount(int* arr, int left, int right, int target) {
+  int count = 0;
+  while (left <= right) {
+    int mid = left + (right - left) / 2;
+    if (arr[mid] == target) {
+      count++;
+      // Проверка соседних элементов
+      int i = mid - 1;
+      while (i >= left && arr[i] == target) {
+        count++;
+        i--;
+      }
+      i = mid + 1;
+      while (i <= right && arr[i] == target) {
+        count++;
+        i++;
+      }
+      return count;
+    } else if (arr[mid] < target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+  return count;
+}
+
 int countPairs3(int* arr, int len, int value) {
+  std::sort(arr, arr + len);  // Сортировка для бинарного поиска
   int count = 0;
   for (int i = 0; i < len; ++i) {
     int target = value - arr[i];
-    if (binarySearch(arr, i + 1, len - 1, target)) {
-      count++;
-    }
+    count += binarySearchCount(arr, i + 1, len - 1, target);
   }
   return count;
 }
